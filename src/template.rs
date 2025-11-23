@@ -46,6 +46,7 @@ impl<I> TemplatedFileIter<I> {
         let mut env = Environment::new();
         env.set_undefined_behavior(UndefinedBehavior::Strict);
         env.set_debug(true);
+        env.set_keep_trailing_newline(true);
 
         if let SyntaxMode::Backstage = config.syntax {
             // https://github.com/backstage/backstage/blob/9e88165368eafc6744b8c41c9912260e853ec11b/plugins/scaffolder-backend/src/lib/templating/SecureTemplater.ts#L40

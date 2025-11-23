@@ -315,3 +315,23 @@ fn test_backstage_ignores_jinja_syntax() {
     )]);
     assert_eq!(result, expected);
 }
+
+#[test]
+fn test_trailing_newline_preserved() {
+    // Template with trailing newline should produce output with trailing newline
+    let files = HashMap::from([("file.txt", "Hello {{ values.name }}\n")]);
+
+    let params = serde_json::json!({ "name": "World" });
+
+    let source = files_from_map(files);
+    let templated = TemplatedFileIter::with_config(source, params, TemplateConfig::default());
+    let result = collect_to_map(templated).unwrap();
+
+    let content = result.get(&PathBuf::from("file.txt")).unwrap();
+    assert!(
+        content.ends_with('\n'),
+        "Expected trailing newline, got: {:?}",
+        content.as_bytes()
+    );
+    assert_eq!(content, "Hello World\n");
+}
