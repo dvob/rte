@@ -7,7 +7,7 @@ For example if you have a directory `examples/mytemplate/` which contains files 
 # {{ values.app_name }}
 
 * Author: {{ values.author }}
-``
+```
 
 You can prepare a parameters file like this (`examples/params.yaml`):
 ```
@@ -23,6 +23,10 @@ rte -s app_name=myapp -s author="John Doe" examples/mytemplate output
 ```
 
 This will go through all files in the directory, run them through Minijinja and put them under output.
+
+## Why
+There is already [Cookiecutter](https://github.com/cookiecutter/cookiecutter) for bootstrapping projects, why creating a new tool?
+I hadn't played with Rust for a long time and this was a good opportunity. Also I was looking for a solution to test Backstage software templates (see `rte --backstage`).
 
 ## Usage
 
