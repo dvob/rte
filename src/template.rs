@@ -58,6 +58,10 @@ impl<I> TemplatedFileIter<I> {
 
             // Add dump filter as alias for tojson (Backstage/Nunjucks compatibility)
             env.add_filter("dump", minijinja::filters::tojson);
+
+            // There are other filters missing. But some of these depend on the SCM integrations
+            // and hence are not easy to simulate
+            // https://github.com/backstage/backstage/blob/9e88165368eafc6744b8c41c9912260e853ec11b/plugins/scaffolder-backend/src/lib/templating/filters/createDefaultFilters.ts#L26
         }
 
         // Wrap params under root_value key if specified
