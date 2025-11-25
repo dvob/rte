@@ -1,4 +1,5 @@
 mod dir;
+mod github;
 mod gitlab;
 mod tar;
 mod template;
@@ -46,7 +47,11 @@ struct Cli {
     #[arg(long = "gitlab-token", env = "GITLAB_TOKEN", hide_env_values = true)]
     gitlab_token: Option<String>,
 
-    /// Source template (directory, .tar.gz archive, or gitlab:// URL)
+    /// GitHub personal access token (can also use GITHUB_TOKEN env var)
+    #[arg(long = "github-token", env = "GITHUB_TOKEN", hide_env_values = true)]
+    github_token: Option<String>,
+
+    /// Source template (directory, .tar.gz archive, gitlab://, or github:// URL)
     source: String,
 
     /// Destination for rendered template (directory or .tar.gz archive)
@@ -87,6 +92,10 @@ fn main() -> Result<()> {
                 "gitlab" => Box::new(gitlab::fetch_archive(
                     &cli.source,
                     cli.gitlab_token.as_deref(),
+                )?),
+                "github" => Box::new(github::fetch_archive(
+                    &cli.source,
+                    cli.github_token.as_deref(),
                 )?),
                 scheme => {
                     anyhow::bail!("unknown url scheme '{}'", scheme)

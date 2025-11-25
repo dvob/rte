@@ -34,7 +34,7 @@ I hadn't played with Rust for a long time and this was a good opportunity. Also 
 rte [OPTIONS] <SOURCE> <DESTINATION>
 ```
 
-**Sources:** directory, `.tar.gz` archive, or `gitlab://host/group/project[@ref]`
+**Sources:** directory, `.tar.gz` archive, `gitlab://host/group/project[@ref]`, or `github://host/owner/repo[@ref]`
 
 **Destinations:** directory or `.tar.gz` archive
 
@@ -45,6 +45,7 @@ rte [OPTIONS] <SOURCE> <DESTINATION>
 - `--backstage` - Use Backstage syntax (`${{ }}` instead of `{{ }}`)
 - `--parameters-on-root` - Don't wrap parameters under `values` key
 - `--gitlab-token <TOKEN>` - GitLab token (or set `GITLAB_TOKEN` env var)
+- `--github-token <TOKEN>` - GitHub token (or set `GITHUB_TOKEN` env var)
 
 **Examples:**
 ```bash
@@ -54,6 +55,9 @@ rte -p params.yaml ./template ./output
 # From GitLab
 rte -p params.yaml gitlab://gitlab.com/group/project@main ./output
 
-# Backstage template
-rte --backstage -p params.yaml gitlab://gitlab.com/group/template ./output
+# From GitHub
+rte -p params.yaml github://github.com/owner/repo@main ./output
+
+# Backstage template from GitHub
+rte --backstage -p params.yaml github://github.com/backstage/software-templates@main ./output
 ```
