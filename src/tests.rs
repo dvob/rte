@@ -335,3 +335,44 @@ fn test_trailing_newline_preserved() {
     );
     assert_eq!(content, "Hello World\n");
 }
+
+#[test]
+fn test_backstage_dump_filter() {
+    // Test that the dump filter properly serializes values in Backstage mode
+    let files = HashMap::from([(
+        "config.yaml",
+        r#"name: ${{ values.name }}
+port: ${{ values.port | dump }}
+enabled: ${{ values.enabled | dump }}
+tags: ${{ values.tags | dump }}
+metadata: ${{ values.metadata | dump }}
+"#,
+    )]);
+
+    let params = serde_json::json!({
+        "name": "myapp",
+        "port": 8080,
+        "enabled": true,
+        "tags": ["web", "api"],
+        "metadata": {"version": "1.0", "author": "Alice"}
+    });
+
+    let source = files_from_map(files);
+    let templated = TemplatedFileIter::with_config(
+        source,
+        params,
+        TemplateConfig {
+            syntax: SyntaxMode::Backstage,
+            root_value: Some("values".to_owned()),
+        },
+    );
+    let result = collect_to_map(templated).unwrap();
+
+    let content = result.get(&PathBuf::from("config.yaml")).unwrap();
+    // Verify that numbers, booleans, arrays, and objects are properly serialized
+    assert!(content.contains("name: myapp"));
+    assert!(content.contains("port: 8080"));
+    assert!(content.contains("enabled: true"));
+    assert!(content.contains(r#"tags: ["web","api"]"#));
+    assert!(content.contains(r#"metadata: {"author":"Alice","version":"1.0"}"#));
+}

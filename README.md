@@ -44,6 +44,7 @@ rte [OPTIONS] <SOURCE> <DESTINATION>
 - `-f, --force` - Write into existing directory
 - `--backstage` - Use Backstage syntax (`${{ }}` instead of `{{ }}`)
 - `--parameters-on-root` - Don't wrap parameters under `values` key
+- `--template-path <PATH>` - Template subdirectory within source (for archives/repos)
 - `--gitlab-token <TOKEN>` - GitLab token (or set `GITLAB_TOKEN` env var)
 - `--github-token <TOKEN>` - GitHub token (or set `GITHUB_TOKEN` env var)
 

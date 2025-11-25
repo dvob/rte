@@ -51,6 +51,11 @@ struct Cli {
     #[arg(long = "github-token", env = "GITHUB_TOKEN", hide_env_values = true)]
     github_token: Option<String>,
 
+    /// Template path within the source. Mainly if source points to a tar.gz, Gitlab or Github you
+    /// can use this option to specify the subpath under which the template resides.
+    #[arg(long = "template-path")]
+    template_path: Option<String>,
+
     /// Source template (directory, .tar.gz archive, gitlab://, or github:// URL)
     source: String,
 
@@ -115,6 +120,39 @@ fn main() -> Result<()> {
                 }
             }
         };
+
+    // Filter and strip template_path if specified
+    let template_source: Box<dyn Iterator<Item = Result<TemplateFile>>> = match &cli.template_path {
+        Some(prefix) => {
+            let prefix = PathBuf::from(prefix);
+            Box::new(
+                template_source.filter_map(move |entry| match entry {
+                    Ok(mut file) => {
+                        // Check if file path starts with the prefix
+                        if file.path.starts_with(&prefix) {
+                            // Strip the prefix from the path
+                            match file.path.strip_prefix(&prefix) {
+                                Ok(stripped) => {
+                                    file.path = stripped.to_path_buf();
+                                    Some(Ok(file))
+                                }
+                                Err(_) => Some(Err(anyhow::anyhow!(
+                                    "Failed to strip prefix '{}' from path: {}",
+                                    prefix.display(),
+                                    file.path.display()
+                                ))),
+                            }
+                        } else {
+                            // Skip files not under the template path
+                            None
+                        }
+                    }
+                    Err(e) => Some(Err(e)),
+                })
+            )
+        }
+        None => template_source,
+    };
 
     //
     // Configure templating

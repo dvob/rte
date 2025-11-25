@@ -55,6 +55,9 @@ impl<I> TemplatedFileIter<I> {
                 .build()
                 .expect("valid backstage syntax config");
             env.set_syntax(syntax_config);
+
+            // Add dump filter as alias for tojson (Backstage/Nunjucks compatibility)
+            env.add_filter("dump", minijinja::filters::tojson);
         }
 
         // Wrap params under root_value key if specified
@@ -103,14 +106,10 @@ impl<I: Iterator<Item = Result<TemplateFile>>> Iterator for TemplatedFileIter<I>
             }
         };
 
-        // Try to render content as UTF-8 template, otherwise keep as binary
         let rendered_content = match std::str::from_utf8(&file.content) {
-            Err(e) => {
-                return Some(Err(anyhow::anyhow!(
-                    "file '{}' is not a UTF8 text file: {}",
-                    file.path.display(),
-                    e,
-                )));
+            Err(_) => {
+                // if content is not valid utf8 we skip rendering and return as is
+                file.content.to_vec()
             }
             Ok(content) => match self
                 .env
